@@ -1,5 +1,4 @@
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <string>
 
@@ -7,7 +6,6 @@
 #include "ros2_custom_msgs/msg/robot_status.hpp"
 
 using namespace std::chrono_literals;
-
 
 class StatusPublisher : public rclcpp::Node
 {
@@ -18,14 +16,17 @@ public:
         publisher_ = this->create_publisher<ros2_custom_msgs::msg::RobotStatus>(
             "/robot_status", 10);
 
+        // Optimization: Using a lambda function instead of std::bind is the 
+        // preferred modern C++ approach. It is often faster and easier to read.
         timer_ = this->create_wall_timer(
-            1000ms, std::bind(&StatusPublisher::timer_callback, this));
+            1000ms, [this]() { timer_callback(); });
     }
 
 private:
     void timer_callback()
     {
-        auto message = ros2_custom_msgs::msg::RobotStatus();
+        // Direct initialization is slightly cleaner than 'auto message = ...()'
+        ros2_custom_msgs::msg::RobotStatus message;
         
         message.robot_name = "Explorer1";
         message.battery_level = battery_level_;
