@@ -7,7 +7,6 @@
 #include "ros2_custom_msgs/msg/robot_status.hpp"
 
 using namespace std::chrono_literals;
-
 class StatusPublisher : public rclcpp::Node
 {
 public:
@@ -24,24 +23,22 @@ private:
     void timer_callback()
     {
         auto message = ros2_custom_msgs::msg::RobotStatus();
-        
         message.robot_name = "Explorer1";
         message.battery_level = battery_level_;
         message.is_active = true;
         message.mission_count = mission_count_;
 
-        RCLCPP_INFO(this->get_logger(), "Publishing - Robot: '%s' | Battery: %.1f | Missions: %d",
-                    message.robot_name.c_str(), message.battery_level, message.mission_count);
-
-        publisher_->publish(message);
-
         battery_level_ -= 0.5;
         mission_count_++;
+
+        RCLCPP_INFO(this->get_logger(), "Publishing: name='%s', battery=%.1f, active=%s, mission=%d",
+                    message.robot_name.c_str(), message.battery_level,
+                    message.is_active ? "true" : "false", message.mission_count);
+        publisher_->publish(message);
     }
 
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<ros2_custom_msgs::msg::RobotStatus>::SharedPtr publisher_;
-    
     double battery_level_;
     int32_t mission_count_;
 };
